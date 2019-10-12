@@ -2,7 +2,6 @@
 MonteCarlo::Node::Node(State &st) {
     cnt = 0;
     win = 0;
-    pri = 0;
     now = st;
     unvis = st.to;
     par = nullptr;
@@ -10,15 +9,18 @@ MonteCarlo::Node::Node(State &st) {
 MonteCarlo::Node &MonteCarlo::Node::operator=(const Node &nd) {
     cnt = nd.cnt;
     win = nd.win;
-    pri = nd.pri;
     now = nd.now;
     unvis = nd.unvis;
     child = nd.child;
     par = nd.par;
     return *this;
 }
+inline double MonteCarlo::calcpri(const Node &nd) {
+    return (double)nd.win / nd.cnt +
+           sqrt(2.0) * sqrt(log(nd.par->cnt) / nd.cnt);
+}
 bool MonteCarlo::cmppri(const Node &n1, const Node &n2) {
-    return n1.pri < n2.pri;
+    return calcpri(n1) < calcpri(n2);
 }
 bool MonteCarlo::cmpcnt(const Node &n1, const Node &n2) {
     return n1.cnt < n2.cnt;
@@ -27,7 +29,7 @@ bool MonteCarlo::cmpcnt(const Node &n1, const Node &n2) {
 MonteCarlo::Node *MonteCarlo::selection(Node *nd) {
     return &(*std::max_element(nd->child.begin(), nd->child.end(), cmppri));
 }
-void MonteCarlo::expand(Node *nd) {
+MonteCarlo::Node *MonteCarlo::expand(Node *nd) {
     int id = rnd.gen((int)nd->unvis.size() - 1);
     Move mv = nd->unvis[id];
     std::swap(nd->unvis[id], nd->unvis.back());
@@ -37,6 +39,7 @@ void MonteCarlo::expand(Node *nd) {
     nnode.par = nd;
     nd->idx.push_back(id);
     nd->child.push_back(nnode);
+    return &nd->child.back();
 }
 int MonteCarlo::playout(Node *nd) {
     State now = nd->now;
@@ -52,7 +55,7 @@ int MonteCarlo::playout(Node *nd) {
     std::pair<int, int> res = now.checkResult();
     if ((res.first > res.second && aturn == BLACK) ||
         (res.first < res.second && aturn == WHITE)) {
-        return 3;
+        return 2;
     } else if (res.first == res.second) {
         return 1;
     } else {
@@ -62,25 +65,23 @@ int MonteCarlo::playout(Node *nd) {
 void MonteCarlo::backprop(Node *nd, int res) {
     Node *node = nd;
     while (1) {
+        node->win += res;
+        node->cnt++;
         if (node->par == nullptr) {
             break;
         }
-        node->win += res;
-        node->cnt++;
         node = node->par;
     }
 }
 Move MonteCarlo::search(State &st) {
     Node root(st);
-    for (int c = 0; c < 1000; c++) {
+    for (int c = 0; c < 5000; c++) {
         Node *node = &root;
         while (node->unvis.empty() && !node->child.empty()) {
             node = selection(node);
         }
         if (!node->unvis.empty()) {
-            expand(node);
-        }
-        if(node->now.cnt==1){}
+            node = expand(node);
         }
         backprop(node, playout(node));
     }

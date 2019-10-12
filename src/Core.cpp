@@ -52,7 +52,7 @@ bool State::isEnd() { return to.isEmpty() && passed; }
 bool State::isPass() { return to.isEmpty(); }
 
 void initState(State &st) {
-    st.cnt = 0;
+    st.cnt = 4;
     st.turn = BLACK;
     st.passed = false;
     memset(st.board, 0, sizeof(st.board));

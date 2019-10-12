@@ -46,7 +46,7 @@ struct MonteCarlo {
     Rand rnd;
     int aturn, pturn;
     struct Node {
-        int cnt, win, pri;
+        int cnt, win;
         State now;
         Node *par;
         Array<Node> child;
@@ -57,8 +57,9 @@ struct MonteCarlo {
     };
     static bool cmppri(const Node &n1, const Node &n2);
     static bool cmpcnt(const Node &n1, const Node &n2);
+    inline static double calcpri(const Node &nd);
     Node *selection(Node *nd);
-    void expand(Node *nd);
+    Node *expand(Node *nd);
     int playout(Node *nd);
     void backprop(Node *nd, int res);
     Move search(State &st);
