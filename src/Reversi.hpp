@@ -43,5 +43,23 @@ struct MinMax {
 };
 
 struct MonteCarlo {
-    struct Node {};
+    Rand rnd;
+    int aturn, pturn;
+    struct Node {
+        int cnt, win, pri;
+        State now;
+        Node *par;
+        Array<Node> child;
+        Array<Move> unvis;
+        Array<int> idx;
+        Node(State &st);
+        Node &operator=(const Node &nd);
+    };
+    static bool cmppri(const Node &n1, const Node &n2);
+    static bool cmpcnt(const Node &n1, const Node &n2);
+    Node *selection(Node *nd);
+    void expand(Node *nd);
+    int playout(Node *nd);
+    void backprop(Node *nd, int res);
+    Move search(State &st);
 };

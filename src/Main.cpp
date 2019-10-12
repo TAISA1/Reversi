@@ -37,6 +37,7 @@ State changeBoard(Point p, State &st) {
     return st;
 }
 MinMax minimax;
+MonteCarlo mcts;
 Move randomMove(State &st) { return st.to[rnd.gen((int)st.to.size() - 1)]; }
 void Main() {
     State now;
@@ -83,6 +84,7 @@ void Main() {
             }
         } else if (scene == 2) {
             minimax.pturn = pturn, minimax.aturn = aturn;
+            mcts.pturn = pturn, mcts.aturn = aturn;
             drawboard(now);
             font(120 - ptime.s(), U"s").draw(Point(1000, 900), Palette::Black);
             font(120 - atime.s(), U"s").draw(Point(100, 100), Palette::Black);
@@ -113,8 +115,8 @@ void Main() {
             } else if (now.turn == aturn) {
                 Move mv;
                 if (mode == 0) {
-                    mv = randomMove(now);
-                } else if (mode == 1) {
+                    mv = mcts.search(now);
+                } else {
                     mv = minimax.minmaxMove(now);
                 }
                 now = actMove(now, mv);

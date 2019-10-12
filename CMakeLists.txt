@@ -32,6 +32,7 @@ include_directories(
 set(SOURCE_FILES
 	"./src/Core.cpp"
 	"./src/Minmax.cpp"
+	"./src/Montecarlo.cpp"
 	"./src/Main.cpp"
 )
 
