@@ -18,6 +18,13 @@ int MinMax::evalState(State &st, int t) {
             }
         }
     }
+    if (fl) {
+        if (st.turn == aturn) {
+            res += st.to.size() * 6;
+        } else {
+            res -= st.to.size() * 6;
+        }
+    }
     return res;
 }
 Move MinMax::minmaxMove(State &st) {
@@ -26,7 +33,7 @@ Move MinMax::minmaxMove(State &st) {
     for (auto &m : st.to) {
         State nst = actMove(st, m);
         int sc;
-        if (lim == 4 && nst.cnt >= 48) {
+        if (nst.cnt >= 56) {
             sc = dfs(nst, 100);
         } else {
             sc = dfs(nst, lim);

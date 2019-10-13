@@ -17,7 +17,7 @@ MonteCarlo::Node &MonteCarlo::Node::operator=(const Node &nd) {
 }
 inline double MonteCarlo::calcpri(const Node &nd) {
     return (double)nd.win / nd.cnt +
-           sqrt(2.0) * sqrt(log(nd.par->cnt) / nd.cnt);
+           0.80 * sqrt(2.0 * log(nd.par->cnt) / nd.cnt);
 }
 bool MonteCarlo::cmppri(const Node &n1, const Node &n2) {
     return calcpri(n1) < calcpri(n2);
@@ -75,20 +75,16 @@ void MonteCarlo::backprop(Node *nd, int res) {
 }
 Move MonteCarlo::search(State &st) {
     Node root(st);
-    for (int c = 0; c < 5000; c++) {
+    for (int c = 0; c < 1000; c++) {
         Node *node = &root;
         while (node->unvis.empty() && !node->child.empty()) {
             node = selection(node);
         }
-        if (!node->unvis.empty()) {
+        if (!node->unvis.empty() && (node == &root || node->cnt >= 10)) {
             node = expand(node);
         }
         backprop(node, playout(node));
     }
-    for (auto e : root.child) {
-        std::cerr << e.cnt << " ";
-    }
-    std::cerr << std::endl;
     int t = std::max_element(root.child.begin(), root.child.end(), cmpcnt) -
             root.child.begin();
     int id = root.idx[t];

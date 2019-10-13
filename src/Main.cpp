@@ -57,14 +57,16 @@ void Main() {
                 mode = 0;
                 scene++;
             }
-            if (SimpleGUI::Button(U"むずかしい", Vec2(100, 200))) {
+            if (SimpleGUI::Button(U"ちょっとつよい", Vec2(100, 200))) {
                 mode = 1;
                 minimax.lim = 3;
+                minimax.fl = false;
                 scene++;
             }
-            if (SimpleGUI::Button(U"とてもむずかしい", Vec2(100, 300))) {
+            if (SimpleGUI::Button(U"つよい", Vec2(100, 300))) {
                 mode = 2;
-                minimax.lim = 4;
+                minimax.lim = 3;
+                minimax.fl = true;
                 scene++;
             }
         } else if (scene == 1) {
@@ -86,9 +88,9 @@ void Main() {
             minimax.pturn = pturn, minimax.aturn = aturn;
             mcts.pturn = pturn, mcts.aturn = aturn;
             drawboard(now);
-            font(120 - ptime.s(), U"s").draw(Point(1000, 900), Palette::Black);
-            font(120 - atime.s(), U"s").draw(Point(100, 100), Palette::Black);
-            if (now.isEnd() || ptime.s() >= 120 || atime.s() >= 120) {
+            font(90 - ptime.s(), U"s").draw(Point(1000, 900), Palette::Black);
+            font(90 - atime.s(), U"s").draw(Point(100, 100), Palette::Black);
+            if (now.isEnd() || ptime.s() >= 90 || atime.s() >= 90) {
                 System::Sleep(3000);
                 scene++;
             }
