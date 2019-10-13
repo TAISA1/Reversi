@@ -45,7 +45,6 @@ void Main() {
     rnd.build();
     Window::Resize(Size(1200, 1000));
     Window::SetPos(0, 0);
-    minimax.turn = WHITE;
     Stopwatch ptime, atime;
     const Font font(40);
     Scene::SetBackground(Palette::Honeydew);
@@ -65,7 +64,7 @@ void Main() {
             }
             if (SimpleGUI::Button(U"つよい", Vec2(100, 300))) {
                 mode = 2;
-                minimax.lim = 3;
+                minimax.lim = 4;
                 minimax.fl = true;
                 scene++;
             }
@@ -74,14 +73,12 @@ void Main() {
                 ptime.start();
                 pturn = BLACK;
                 aturn = WHITE;
-                minimax.turn = aturn;
                 scene++;
             }
             if (SimpleGUI::Button(U"白でスタート", Vec2(100, 200))) {
                 ptime.start();
                 pturn = WHITE;
                 aturn = BLACK;
-                minimax.turn = aturn;
                 scene++;
             }
         } else if (scene == 2) {
@@ -110,6 +107,8 @@ void Main() {
             if (MouseL.down() && now.turn == pturn) {
                 now = changeBoard(Cursor::Pos(), now);
                 drawboard(now);
+                //  Move mv = minimax2.minmaxMove(now);
+                // now = actMove(now, mv);
                 if (now.turn == aturn) {
                     ptime.pause();
                     atime.start();

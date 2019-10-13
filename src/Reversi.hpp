@@ -31,7 +31,7 @@ void initState(State &st);
 State actMove(State &st, Move &mv);
 
 struct MinMax {
-    int turn, lim, aturn, pturn;
+    int lim, aturn, pturn;
     bool fl;
     int val[8][8] = {{100, -40, 20, 5, 5, 20, -40, 100},
                      {-40, -80, -1, -1, -1, -1, -80, -40},
@@ -44,6 +44,7 @@ struct MinMax {
     int evalState(State &st, int t);
     Move minmaxMove(State &st);
     int dfs(State &st, int dep);
+    int alphabeta(State &st, int dep, int alpha, int beta);
 };
 
 struct MonteCarlo {
