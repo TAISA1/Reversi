@@ -3,7 +3,7 @@ constexpr int BLACK = 1, WHITE = 2, NONE = 0;
 constexpr int dx[8] = {0, 1, 0, -1, 1, 1, -1, -1};
 constexpr int dy[8] = {1, 0, -1, 0, 1, -1, 1, -1};
 constexpr int INF = (1 << 30) - 1;
-constexpr int boardy = 40, boardx = 200, boardh = 800;
+constexpr int boardy = 140, boardx = 240, boardh = 720;
 struct Rand {
     std::random_device rnd;
     std::mt19937 mt;
