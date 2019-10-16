@@ -31,6 +31,7 @@ void initState(State &st);
 State actMove(State &st, Move &mv);
 
 struct MinMax {
+    Rand rnd;
     int lim, aturn, pturn;
     bool fl;
     int val[8][8] = {{100, -40, 20, 5, 5, 20, -40, 100},

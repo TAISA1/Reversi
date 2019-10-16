@@ -18,11 +18,11 @@ int MinMax::evalState(State &st, int t) {
             }
         }
     }
-    if (fl) {
+    if (fl && t == 0) {
         if (st.turn == aturn) {
-            res += st.to.size() * 6;
+            res += st.to.size() * rnd.gen(6);
         } else {
-            res -= st.to.size() * 6;
+            res -= st.to.size() * rnd.gen(6);
         }
     }
     return res;
