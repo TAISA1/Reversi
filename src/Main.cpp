@@ -47,19 +47,32 @@ void Main() {
     Window::SetPos(0, 0);
     Stopwatch ptime, atime, cdown;
     const Font font(40), title(80), tim(250), txt(25),
-        fontb(35, Typeface::Bold);
-    const Texture think(Emoji(U"🤔"));
+        fontb(35, Typeface::Bold), think(60);
+    // const Texture think(Emoji(U"🤔"));
     Scene::SetBackground(Palette::White);
     int scene = -1;
     int mode = 0;
-    bool th = false, cd = true, tl = false;
+    bool th = false, cd = true, tl = false, written = false;
+    BinaryReader breader(U"data/win.bin");
+    int32 wc1 = 0, dc1 = 0, lc1 = 0, wc2 = 0, dc2 = 0, lc2 = 0, wc3 = 0,
+          dc3 = 0, lc3 = 0;
+    breader.read(wc1);
+    breader.read(dc1);
+    breader.read(lc1);
+    breader.read(wc2);
+    breader.read(dc2);
+    breader.read(lc2);
+    breader.read(wc3);
+    breader.read(dc3);
+    breader.read(lc3);
+    BinaryWriter bwriter(U"data/win.bin");
     while (System::Update()) {
         if (scene != 2) {
             Rect(0, 0, 1200, 500).draw(Palette::Black);
             Rect(0, 500, 1200, 500).draw(Palette::White);
         }
-        font(Cursor::Pos().x, U",", Cursor::Pos().y)
-            .draw(Point(0, 0), Palette::White);
+        // font(Cursor::Pos().x, U",", Cursor::Pos().y)
+        //.draw(Point(0, 0), Palette::White);
         if (scene == -1) {
             title(U"90秒リバーシ").draw(Point(340, 150), Palette::White);
             txt(U"・自分の色のコマで相手の色のコマを挟むと、自分の色にできます"
@@ -113,6 +126,33 @@ void Main() {
             font(U"ふつう").draw(Point(137, 670), Palette::Black);
             font(U"ちょっとつよい").draw(Point(460, 670), Palette::Black);
             font(U"つよい").draw(Point(937, 670), Palette::Red);
+            txt(U"AI勝利:", lc1, U"回").draw(Point(130, 320), Palette::White);
+            txt(U"対戦:", wc1 + dc1 + lc1, U"回")
+                .draw(Point(130, 370), Palette::White);
+            if (wc1 + dc1 + lc1 == 0) {
+                txt(U"AI勝率:", 0, U"%").draw(Point(130, 420), Palette::White);
+            } else {
+                int p1 = 100.0 * (double)lc1 / (wc1 + dc1 + lc1);
+                txt(U"勝率:", p1, U"%").draw(Point(130, 420), Palette::White);
+            }
+            txt(U"AI勝利:", lc2, U"回").draw(Point(530, 320), Palette::White);
+            txt(U"対戦:", wc2 + dc2 + lc2, U"回")
+                .draw(Point(530, 370), Palette::White);
+            if (wc2 + dc2 + lc2 == 0) {
+                txt(U"AI勝率:", 0, U"%").draw(Point(530, 420), Palette::White);
+            } else {
+                int p1 = 100.0 * (double)lc2 / (wc2 + dc2 + lc2);
+                txt(U"AI勝率:", p1, U"%").draw(Point(530, 420), Palette::White);
+            }
+            txt(U"AI勝利:", lc3, U"回").draw(Point(930, 320), Palette::White);
+            txt(U"対戦:", wc3 + dc3 + lc3, U"回")
+                .draw(Point(930, 370), Palette::White);
+            if (wc3 + dc3 + lc3 == 0) {
+                txt(U"AI勝率:", 0, U"%").draw(Point(930, 420), Palette::White);
+            } else {
+                int p1 = 100.0 * (double)lc3 / (wc3 + dc3 + lc3);
+                txt(U"AI勝率:", p1, U"%").draw(Point(930, 420), Palette::White);
+            }
         } else if (scene == 1) {
             int mx = Cursor::Pos().x, my = Cursor::Pos().y;
             if (200 <= mx && mx <= 1000 && 100 <= my && my <= 400) {
@@ -154,12 +194,14 @@ void Main() {
             }
             RoundRect(980, 725, 200, 100, 8)
                 .drawFrame(2.0, Color(60, 60, 60, 255));
-            if ((90 - atime.s()) % 60 < 10) {
-                title((90 - atime.s()) / 60, U":0", (90 - atime.s()) % 60)
-                    .draw(Point(32, 183), Palette::Black);
-            } else {
-                title((90 - atime.s()) / 60, U":", (90 - atime.s()) % 60)
-                    .draw(Point(32, 183), Palette::Black);
+            if (now.turn != aturn || th) {
+                if ((90 - atime.s()) % 60 < 10) {
+                    title((90 - atime.s()) / 60, U":0", (90 - atime.s()) % 60)
+                        .draw(Point(32, 183), Palette::Black);
+                } else {
+                    title((90 - atime.s()) / 60, U":", (90 - atime.s()) % 60)
+                        .draw(Point(32, 183), Palette::Black);
+                }
             }
             RoundRect(20, 190, 200, 100, 8)
                 .drawFrame(2.0, Color(60, 60, 60, 255));
@@ -197,7 +239,7 @@ void Main() {
                 }
                 ptime.pause();
                 atime.pause();
-                System::Sleep(3000);
+                System::Sleep(2000);
                 scene++;
             }
             if (now.isPass()) {
@@ -217,7 +259,7 @@ void Main() {
                 for (auto &mv : now.to) {
                     int y = boardy + (2 * mv.y) * (boardh / 16),
                         x = boardx + (2 * mv.x) * (boardh / 16);
-                    Rect(x + 1, y + 1, boardh / 8 - 2, boardh / 8 - 2)
+                    Rect(x + 35, y + 35, boardh / 8 - 70, boardh / 8 - 70)
                         .draw(Color(0, 160, 0, 200));
                 }
             }
@@ -232,8 +274,8 @@ void Main() {
                 }
             } else if (now.turn == aturn) {
                 if (!th) {
-                    // font(U"考え中...").draw(Point(50, 100), Palette::Black);
-                    think.scaled(1.7).drawAt(100, 200);
+                    think(U"考え中").draw(Point(32, 191),
+                                          Color(134, 145, 32, 200));
                     th = true;
                     continue;
                 }
@@ -256,19 +298,67 @@ void Main() {
                     (res.first < res.second && pturn == WHITE)) {
                     title(U"あなたの勝ち!")
                         .draw(Point(360, 300), Palette::White);
+                    if (!written) {
+                        if (mode == 0) {
+                            wc1++;
+                        } else if (mode == 1) {
+                            wc2++;
+                        } else {
+                            wc3++;
+                        }
+                    }
                 } else if (res.first == res.second) {
                     title(U"引き分け...").draw(Point(360, 300), Palette::White);
+                    if (!written) {
+                        if (mode == 0) {
+                            dc1++;
+                        } else if (mode == 1) {
+                            dc2++;
+                        } else {
+                            dc3++;
+                        }
+                    }
                 } else {
                     title(U"あなたの負け...")
                         .draw(Point(350, 300), Palette::White);
+                    if (!written) {
+                        if (mode == 0) {
+                            lc1++;
+                        } else if (mode == 1) {
+                            lc2++;
+                        } else {
+                            lc3++;
+                        }
+                    }
                 }
                 font(U"あなた: ", (pturn == BLACK ? res.first : res.second))
                     .draw(Point(800, 800), Palette::Black);
                 font(U"AI: ", (aturn == BLACK ? res.first : res.second))
-                    .draw(Point(885, 900), Palette::Black);
+                    .draw(Point(875, 900), Palette::Black);
             } else {
                 title(U"あなたの負け...").draw(Point(350, 300), Palette::White);
                 font(U"時間切れ").draw(Point(800, 900), Palette::Black);
+                if (!written) {
+                    if (mode == 0) {
+                        lc1++;
+                    } else if (mode == 1) {
+                        lc2++;
+                    } else {
+                        lc3++;
+                    }
+                }
+            }
+            if (!written) {
+                bwriter.write(wc1);
+                bwriter.write(dc1);
+                bwriter.write(lc1);
+                bwriter.write(wc2);
+                bwriter.write(dc2);
+                bwriter.write(lc2);
+                bwriter.write(wc3);
+                bwriter.write(dc3);
+                bwriter.write(lc3);
+                written = true;
             }
             if (SimpleGUI::Button(U"ゲームをおわる", Vec2(300, 600), 600)) {
                 System::Exit();
