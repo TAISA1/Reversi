@@ -52,7 +52,7 @@ void Main() {
     Scene::SetBackground(Palette::White);
     int scene = -1;
     int mode = 0;
-    bool th = false, cd = true, tl = false, written = false;
+    bool th = false, cd = true, tl = false, written = false, psd = false;
     BinaryReader breader(U"data/win.bin");
     int32 wc1 = 0, dc1 = 0, lc1 = 0, wc2 = 0, dc2 = 0, lc2 = 0, wc3 = 0,
           dc3 = 0, lc3 = 0;
@@ -65,8 +65,11 @@ void Main() {
     breader.read(wc3);
     breader.read(dc3);
     breader.read(lc3);
-    BinaryWriter bwriter(U"data/win.bin");
     while (System::Update()) {
+        if (psd) {
+            System::Sleep(500);
+            psd = false;
+        }
         if (scene != 2) {
             Rect(0, 0, 1200, 500).draw(Palette::Black);
             Rect(0, 500, 1200, 500).draw(Palette::White);
@@ -194,7 +197,7 @@ void Main() {
             }
             RoundRect(980, 725, 200, 100, 8)
                 .drawFrame(2.0, Color(60, 60, 60, 255));
-            if (now.turn != aturn || th) {
+            if (now.turn != aturn || th || cd) {
                 if ((90 - atime.s()) % 60 < 10) {
                     title((90 - atime.s()) / 60, U":0", (90 - atime.s()) % 60)
                         .draw(Point(32, 183), Palette::Black);
@@ -241,18 +244,21 @@ void Main() {
                 atime.pause();
                 System::Sleep(2000);
                 scene++;
-            }
-            if (now.isPass()) {
+                continue;
+            } else if (now.isPass()) {
                 if (now.turn == pturn) {
                     ptime.pause();
                     atime.start();
+                    title(U"パスです").draw(Point(450, 10), Palette::Black);
                 } else {
                     atime.pause();
                     ptime.start();
+                    title(U"パスです").draw(Point(450, 10), Palette::Black);
                 }
                 now.turn = nextTurn(now.turn);
                 now.passed = 1;
                 now.to = now.findMove();
+                psd = true;
                 continue;
             }
             if (now.turn == pturn) {
@@ -307,6 +313,16 @@ void Main() {
                             wc3++;
                         }
                     }
+                    if (mode == 0) {
+                        txt(U"あなたは", wc1, U"人目の勝者です！")
+                            .draw(Point(50, 700), Palette::Black);
+                    } else if (mode == 1) {
+                        txt(U"あなたは", wc2, U"人目の勝者です！")
+                            .draw(Point(50, 700), Palette::Black);
+                    } else {
+                        txt(U"あなたは", wc3, U"人目の勝者です！")
+                            .draw(Point(50, 700), Palette::Black);
+                    }
                 } else if (res.first == res.second) {
                     title(U"引き分け...").draw(Point(360, 300), Palette::White);
                     if (!written) {
@@ -349,6 +365,7 @@ void Main() {
                 }
             }
             if (!written) {
+                BinaryWriter bwriter(U"data/win.bin");
                 bwriter.write(wc1);
                 bwriter.write(dc1);
                 bwriter.write(lc1);

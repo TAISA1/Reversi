@@ -48,7 +48,10 @@ std::pair<int, int> State::checkResult() {
     }
     return p;
 }
-bool State::isEnd() { return to.isEmpty() && passed; }
+bool State::isEnd() {
+    std::pair<int, int> p = checkResult();
+    return ((p.first + p.second == 64) || (to.isEmpty() && passed));
+}
 bool State::isPass() { return to.isEmpty(); }
 
 void initState(State &st) {
